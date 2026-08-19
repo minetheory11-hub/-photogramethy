@@ -1,0 +1,399 @@
+<style>
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    background: #f8fafc;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 12px;
+  }
+
+  .flashcard-container {
+    width: 100%;
+    max-width: 480px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .header-title {
+    text-align: center;
+    margin-bottom: 10px;
+  }
+
+  .header-title h1 {
+    font-size: 1.4rem;
+    color: #0f172a;
+  }
+
+  .header-title p {
+    font-size: 0.8rem;
+    color: #64748b;
+  }
+
+  .progress-bar-container {
+    width: 100%;
+    height: 5px;
+    background-color: #e2e8f0;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 6px;
+  }
+
+  .progress-bar {
+    height: 100%;
+    width: 0%;
+    background-color: #2563eb;
+    transition: width 0.3s ease;
+  }
+
+  .card-counter {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #475569;
+    margin-bottom: 12px;
+  }
+
+  .scene {
+    width: 100%;
+    height: 390px; 
+    perspective: 1000px;
+    margin-bottom: 16px;
+  }
+
+  .card {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.5s cubic-bezier(0.4, 0.2, 0.2, 1);
+    cursor: pointer;
+    border-radius: 20px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+  }
+
+  .card.is-flipped {
+    transform: rotateY(180deg);
+  }
+
+  .card-face {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 20px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    border: 1px solid #e2e8f0;
+  }
+
+  .card-front {
+    background: #ffffff;
+    color: #0f172a;
+  }
+
+  .badge {
+    align-self: flex-start;
+    background: #eff6ff;
+    color: #2563eb;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    border: 1px solid #bfdbfe;
+  }
+
+  .front-content {
+    text-align: center;
+    margin: auto 0;
+  }
+
+  .term-title {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #1e3a8a;
+    line-height: 1.35;
+    word-break: break-word;
+  }
+
+  .tap-hint {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    margin-top: 12px;
+  }
+
+  .card-back {
+    background: #ffffff;
+    color: #334155;
+    transform: rotateY(180deg);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .back-body {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow-y: auto;
+    padding: 5px 0;
+  }
+
+  .back-text {
+    font-size: 0.95rem;
+    line-height: 1.55;
+    text-align: center;
+    color: #334155;
+  }
+
+  .back-text strong {
+    color: #1d4ed8;
+    font-weight: 700;
+    background-color: #eff6ff;
+    padding: 2px 5px;
+    border-radius: 4px;
+    display: inline-block;
+    margin: 1px 0;
+  }
+
+  .technical-footer {
+    border-top: 1px dashed #cbd5e1;
+    padding: 8px 10px;
+    margin-top: 8px;
+    text-align: left;
+    background-color: #f8fafc;
+    border-radius: 10px;
+  }
+
+  .tech-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+  }
+
+  .tech-val {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #0f172a;
+    margin-top: 2px;
+    line-height: 1.4;
+  }
+
+  .controls {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .btn {
+    padding: 14px;
+    border: none;
+    background-color: #ffffff;
+    color: #334155;
+    font-weight: 700;
+    font-size: 1rem;
+    border-radius: 12px;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    border: 1px solid #cbd5e1;
+    touch-action: manipulation;
+  }
+
+  .btn-nav {
+    flex: 1;
+    background-color: #f1f5f9;
+  }
+
+  .btn-flip {
+    flex: 2;
+    background-color: #2563eb;
+    color: white;
+    border: none;
+  }
+
+  .btn:active {
+    transform: scale(0.96);
+  }
+</style>
+
+<div class="flashcard-container">
+  <div class="header-title">
+    <h1>Photogrammetry</h1>
+    <p>ตอนที่ 2 & 3: แปลคำอธิบาย + ศัพท์เทคนิคแปลไทย</p>
+  </div>
+
+  <div class="progress-bar-container">
+    <div class="progress-bar" id="progressBar"></div>
+  </div>
+  <div class="card-counter" id="cardCounter">Card 1 / 56</div>
+
+  <div class="scene">
+    <div class="card" id="flashcard" onclick="flipCard()">
+      <div class="card-face card-front">
+        <div class="badge" id="cardCategory">Part 2</div>
+        <div class="front-content">
+          <div class="term-title" id="frontTerm">Analog Photogrammetry</div>
+          <div class="tap-hint">👆 แตะเพื่อพลิกดูคำตอบ (หรือปัดซ้าย-ขวา)</div>
+        </div>
+      </div>
+
+      <div class="card-face card-back">
+        <div class="back-body">
+          <div class="back-text" id="backDefinition">คำอธิบาย...</div>
+        </div>
+        <div class="technical-footer">
+          <div class="tech-label">📌 ศัพท์เฉพาะ + คำแปล (Technical Terms)</div>
+          <div class="tech-val" id="techTerm">Analog Photogrammetry</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button class="btn btn-nav" onclick="prevCard()">◀</button>
+    <button class="btn btn-flip" onclick="flipCard()">🔄 พลิกการ์ด</button>
+    <button class="btn btn-nav" onclick="nextCard()">▶</button>
+  </div>
+</div>
+
+<script>
+  const cardsData = [
+    // ตอนที่ 2
+    { category: "Part 2", term: "Analog Photogrammetry", back: "ยุคแรกของการทำแผนที่จากภาพถ่าย ใช้ **เครื่องมือกลไกและเลนส์กระจก** ในการวัดและปรับแก้ภาพถ่าย", tech: "Mechanical Instruments (เครื่องมือกลไก), Optical System (ระบบออปติก/เลนส์)" },
+    { category: "Part 2", term: "Analytical Photogrammetry", back: "ยุคที่เริ่มใช้ **คอมพิวเตอร์และสูตรคณิตศาสตร์** เข้ามาช่วยคำนวณแก้ความคลาดเคลื่อน โดยยังใช้ **แผ่นฟิล์มภาพถ่าย** อยู่", tech: "Hardcopy / Optical Film (แผ่นฟิล์ม/รูปพิมพ์), Mathematical Models (แบบจำลองคณิตศาสตร์)" },
+    { category: "Part 2", term: "Digital Photogrammetry", back: "ยุคปัจจุบัน ใช้ **ภาพถ่ายดิจิทัล (ไฟล์ภาพ)** และประมวลผลด้วย **ซอฟต์แวร์คอมพิวเตอร์** ทั้งหมด", tech: "Digital Raster (ภาพพิกเซลดิจิทัล), Photogrammetric Software (โปรแกรมประมวลผลภาพถ่าย)" },
+    { category: "Part 2", term: "Image Block", back: "กลุ่มของ **ภาพถ่ายทางอากาศหลายๆ ใบ** ที่บินถ่ายแบบ **ซ้อนทับกัน** เพื่อให้ครอบคลุมพื้นที่ทั้งหมด", tech: "Overlap (ส่วนซ้อนหน้า), Sidelap (ส่วนซ้อนข้าง), Flight Strip (แถบแนวบิน)" },
+    { category: "Part 2", term: "Model Adjustment", back: "การปรับ **โมเดล 3 มิติ ( Stereo Model )** ที่ได้จากภาพถ่ายคู่ซ้อน ให้ตรงกับ **ตำแหน่งภูมิประเทศจริง**", tech: "Stereo Model (แบบจำลองสามมิติ), Ground Surface (พื้นผิวภูมิประเทศจริง)" },
+    { category: "Part 2", term: "Block Adjustment", back: "การปรับแก้ **ความแม่นยำของภาพถ่ายยกชุดพร้อมกัน** โดยใช้ **จุดอ้างอิง GCP และจุดเชื่อม Tie Point** เพื่อกระจายค่าความคลาดเคลื่อน", tech: "GCP (จุดควบคุมบนดิน), Tie Point (จุดเชื่อมภาพ), Error Distribution (การกระจายความคลาดเคลื่อน)" },
+    { category: "Part 2", term: "Aerial Images / Aerial Photography", back: "ภาพถ่ายทางอากาศ ที่ถ่ายจาก **กล้องหรือเซนเซอร์** บน **เครื่องบิน โดรน หรือบอลลูน**", tech: "Sensor (ตัวรับภาพ/เซนเซอร์), Aircraft (อากาศยาน), UAV / Drone (โดรน)" },
+    { category: "Part 2", term: "Orthophoto / Orthoimages", back: "ภาพถ่ายทางอากาศที่ **แก้ความเอียงและความสูงต่ำของดินแล้ว** มีมาตราส่วนเท่ากันทั้งภาพ **ใช้วัดระยะได้แม่นยำเหมือนแผนที่**", tech: "Orthographic Projection, Relief Displacement (การขยับเนื่องจากความสูงต่ำพื้นที่)" },
+    { category: "Part 2", term: "Small Format Sensor", back: "เซนเซอร์รับภาพ **ขนาดเล็ก (น้อยกว่า 35 mm)** มักอยู่ใน **โดรนถ่ายภาพขนาดเล็กทั่วไป**", tech: "Sensor Size (<35mm), Commercial Drones (โดรนพาณิชย์ทั่วไป)" },
+    { category: "Part 2", term: "Medium Format Sensor", back: "เซนเซอร์รับภาพ **ขนาดกลาง (ความละเอียดสูง 50-100 Mpx)** นิยมใช้ใน **งานโดรนสำรวจระดับมืออาชีพ**", tech: "Resolution (ความละเอียดภาพ), Professional Drones (โดรนสำรวจระดับมืออาชีพ)" },
+    { category: "Part 2", term: "Large Format Sensor", back: "เซนเซอร์รับภาพ **ขนาดใหญ่มาก คุณภาพสูงที่สุด** ติดตั้งบน **เครื่องบินสำรวจลำใหญ่** สำหรับทำแผนที่ระดับประเทศ", tech: "Manned Aircraft (เครื่องบินแบบมีคนขับ), Large Format Camera (กล้องสำรวจขนาดใหญ่)" },
+    { category: "Part 2", term: "Negative", back: "แผ่นฟิล์มต้นฉบับ ที่มี **สีและความสว่างกลับกันกับของจริง** (ส่วนสว่างจะมืด ส่วนมืดจะสว่าง)", tech: "Negative Film (ฟิล์มเนกาทีฟ), Inverted Brightness (ความสว่างกลับกัน)" },
+    { category: "Part 2", term: "Diapositive", back: "แผ่นฟิล์มใสสไลด์ ที่มี **สีและแสงตรงตามความเป็นจริง** ใช้กับเครื่องวัดภาพถ่าย", tech: "Diapositive Film (ฟิล์มสไลด์โปร่งแสง), Positive Transparency (แผ่นใสสไลด์ภาพจริง)" },
+    { category: "Part 2", term: "Bromide", back: "กระดาษอัดรูปสมัยก่อน เคลือบด้วย **สารไวแสง silver bromide** ใช้พิมพ์รูปถ่ายทางอากาศ", tech: "Bromide Paper (กระดาษอัดรูปโบรไมด์), Silver Bromide Emulsion (สารไวแสงเงินโบรไมด์)" },
+    { category: "Part 2", term: "Fiducial Marks", back: "มาร์กจุดอ้างอิง **ตรงขอบหรือมุมของภาพถ่ายฟิล์ม** ใช้สร้าง **ระบบพิกัดของตัวภาพถ่าย**", tech: "Image Coordinate System (ระบบพิกัดภาพถ่าย), Fiducial Lines (เส้นดรรชนีภาพ)" },
+    { category: "Part 2", term: "Principle Point", back: "จุดศูนย์กลางทางเรขาคณิตของภาพถ่าย เกิดจากการลากเส้นกากบาทตัดกันระหว่าง **มาร์กขอบภาพ (Fiducial Marks)**", tech: "Principle Point (จุดศูนย์กลางภาพ), Geometric Center (จุดศูนย์กลางทางเรขาคณิต)" },
+    { category: "Part 2", term: "Conjugate Point", back: "ตำแหน่ง **จุดเดียวกันบนพื้นดิน** แต่ **ไปปรากฏอยู่บนภาพถ่ายมากกว่า 1 ใบ** (ในส่วนที่ภาพซ้อนกัน)", tech: "Conjugate Point (จุดร่วมบนภาพคู่), Overlapping Coverage (พื้นที่ซ้อนทับ)" },
+    { category: "Part 2", term: "Data Strip", back: "แถบข้อมูลขอบภาพ บันทึกรายละเอียดการบิน เช่น **เวลา, ความสูงบิน, มาตราส่วน และระดับลูกน้ำ**", tech: "Flight Data (ข้อมูลการบิน), Altimeter (เครื่องวัดความสูง), Bubble Level (ระดับลูกน้ำ)" },
+    { category: "Part 2", term: "Run-Roll", back: "ตัวเลขรหัสระบุ **สายการบิน (Run)** และ **ม้วนฟิล์ม (Roll)** ที่ใช้ตอนถ่ายภาพ", tech: "Run Number (หมายเลขสายการบิน), Roll Number (หมายเลขม้วนฟิล์ม)" },
+    { category: "Part 2", term: "Flightline", back: "เส้นทางบินที่วางแผนไว้ เพื่อให้ **นักบินหรือโดรน บินถ่ายภาพให้ครอบคลุมพื้นที่**", tech: "Flightline (แนวบิน), Flight Path Plan (แผนเส้นทางการบิน)" },
+    { category: "Part 2", term: "Photo Scale (F/H)", back: "มาตราส่วนภาพถ่าย **คิดจาก f/H (ความยาวโฟกัส / ความสูงบิน)** ค่าจะไม่เท่ากันทั้งภาพ เพราะพื้นดินสูงต่ำไม่เท่ากัน", tech: "Focal Length (ความยาวโฟกัส f), Flying Height (ความสูงการบิน H)" },
+    { category: "Part 2", term: "Map Scale", back: "มาตราส่วนแผนที่ เป็นการมองแบบฉายตั้งฉาก **(Ortho Projection)** จึงมี **มาตราส่วนเท่ากันเป๊ะทั่วทั้งแผ่น**", tech: "Ortho Projection (การฉายภาพแบบตั้งฉาก), Uniform Scale (มาตราส่วนคงที่สม่ำเสมอ)" },
+    { category: "Part 2", term: "Focal Length", back: "ความยาวโฟกัส (f) คือระยะ **จากศูนย์กลางเลนส์ถึงตัวรับภาพ** เป็นตัวกำหนด **ความกว้างมุมมองภาพ (FOV)**", tech: "Field of View (มุมมองภาพ FOV), Focal Length (ความยาวโฟกัส f)" },
+    { category: "Part 2", term: "Stereo Model", back: "ภาพ **3 มิติเสมือนจริง** ที่เกิดจากการมอง **ภาพถ่ายทางอากาศ 2 ใบที่ซ้อนทับกัน (Stereo Pair)** ผ่านกล้องมองภาพสามมิติ", tech: "Stereo Pair (ภาพถ่ายคู่ซ้อน), 3D Perception (การรับรู้ภาพสามมิติ)" },
+    { category: "Part 2", term: "Overlap Images", back: "ส่วนซ้อนทับของภาพ **ตามแนวทิศทางการบิน (ซ้อนหน้า-หลัง)** ปกติเผื่อไว้ **60-80%**", tech: "Endlap / Forward Overlap (ส่วนซ้อนตามแนวบิน/ซ้อนหน้า)" },
+    { category: "Part 2", term: "Sidelap Images", back: "ส่วนซ้อนทับของภาพ **ระหว่างแถบแนวบินขนานกัน (ซ้อนข้าง)** ปกติเผื่อไว้ **20-40%**", tech: "Sidelap / Side Overlap (ส่วนซ้อนระหว่างแนวบิน/ซ้อนข้าง)" },
+    { category: "Part 2", term: "Perspective Projection", back: "การฉายภาพแบบมุมมองตาคน **แสงพุ่งเข้าจุดศูนย์กลางเลนส์จุดเดียว** ของใกล้กล้องจะใหญ่ ของไกลจะเล็ก", tech: "Perspective Center (จุดศูนย์กลางทัศนียภาพ), Lens Center (จุดศูนย์กลางเลนส์)" },
+    { category: "Part 2", term: "Ortho Projection", back: "การฉายภาพแบบแผนที่ **แสงทุกเส้นตั้งฉากกับระนาบ** ระยะและสเกลจึง **ถูกต้องเท่ากันทั้งหมด**", tech: "Orthographic Projection, Parallel Rays (ลำแสงขนาน)" },
+    { category: "Part 2", term: "Rectified Images", back: "ภาพที่ **แก้เฉพาะความเอียงของกล้องถ่ายภาพแล้ว** แต่ **ยังไม่ได้แก้ความคลาดเคลื่อนจากความสูงต่ำของพื้นดิน**", tech: "Tilt Correction (การปรับแก้ความเอียงกล้อง), Uncorrected Relief (ยังไม่แก้ความสูงต่ำพื้นที่)" },
+    { category: "Part 2", term: "Ortho Rectification Image", back: "ภาพที่ **แก้ทั้งความเอียงกล้อง และแก้ความสูงต่ำของพื้นดินแล้ว** ได้สเกลถูกต้องใช้เป็นแผนที่ได้ทันที", tech: "DEM/DTM (แบบจำลองความสูงดิจิทัล), Orthorectification (การดัดแก้ภาพเชิงระนาบถูกต้อง)" },
+    { category: "Part 2", term: "Ground Control Points (GCP)", back: "จุดควบคุมบนพื้นดิน ที่ลงไป **รังวัดหาค่าพิกัดจริง (X, Y, Z)** เพื่อนำมาใช้อ้างอิงพิกัดให้ภาพถ่าย", tech: "GCP (จุดควบคุมภาคสนาม), Coordinates (ค่าพิกัด X,Y,Z), Field Survey (การรังวัดภาคสนาม)" },
+    { category: "Part 2", term: "Tie Points", back: "จุดเชื่อมภาพ คือ **จุดตำแหน่งเดียวกันที่ตรึงภาพถ่ายหลายๆ ใบเข้าด้วยกัน**", tech: "Tie Point (จุดเชื่อมโยงภาพ), Image Matching (การจับคู่จุดภาพ)" },
+    { category: "Part 2", term: "Map Accuracy", back: "ความแม่นยำของตำแหน่งแผนที่ ว่า **ตรงกับตำแหน่งจริงบนโลกมากน้อยแค่ไหน** ตามเกณฑ์มาตรฐาน", tech: "Accuracy Standards (มาตรฐานความถูกต้อง), Spatial Precision (ความแม่นยำเชิงพื้นที่)" },
+    { category: "Part 2", term: "Horizontal Accuracy", back: "ความถูกต้องแม่นยำของ **ตำแหน่งราบ พิกัด (X, Y)** บนแผนที่", tech: "Horizontal Position (ตำแหน่งแนวราบ), Coordinates (พิกัด X, Y)" },
+    { category: "Part 2", term: "Vertical Accuracy", back: "ความถูกต้องแม่นยำของ **ระดับความสูง พิกัดแนวดิ่ง (Z)**", tech: "Vertical Position (ตำแหน่งแนวดิ่ง), Elevation (ค่าระดับความสูง Z)" },
+    { category: "Part 2", term: "Exposure Station", back: "ตำแหน่งพิกัด (X, Y, Z) ของ **ตัวกล้องกลางอากาศ ในเสี้ยววินาทีที่กดชัตเตอร์ถ่ายภาพ**", tech: "Camera Position (ตำแหน่งกล้อง), Air Station (ตำแหน่งสถานีถ่ายภาพกลางอากาศ)" },
+    { category: "Part 2", term: "POS (GNSS/IMU or INS)", back: "ระบบวัดตำแหน่งและทิศทางกล้อง **GNSS หาพิกัด (X,Y,Z)** ส่วน **IMU วัดมุมเอียงกล้อง (Roll, Pitch, Yaw)**", tech: "GNSS (ดาวเทียมนำทาง), IMU/INS (เครื่องวัดการเคลื่อนที่), Roll-Pitch-Yaw (มุมเอียงกล้อง 3 แกน)" },
+    { category: "Part 2", term: "Interior Orientation", back: "การตั้งค่า **คุณลักษณะภายในตัวกล้อง** เช่น ความยาวโฟกัส, จุดศูนย์กลางกล้อง และค่าความบิดเบี้ยวของเลนส์", tech: "IO (การรับวางเชิงการวัดภายในกล้อง), Lens Distortion (ค่าความบิดเบี้ยวของเลนส์)" },
+    { category: "Part 2", term: "Exterior Orientation", back: "การหา **ตำแหน่ง (X,Y,Z) และมุมเอียง 3 ทิศทาง (Roll, Pitch, Yaw)** ของกล้องในอวกาศขณะถ่ายภาพ", tech: "EO (การรับวางเชิงการวัดภายนอกกล้อง), Omega-Phi-Kappa (ค่ามุมหมุนเอียง 3 แกน)" },
+    { category: "Part 2", term: "Aerial Triangulation", back: "การคำนวณ **ต่อโครงข่ายพิกัด 3 มิติทางอากาศ** ช่วยประหยัดเวลา ไม่ต้องออกไปรังวัดจุด GCP บนดินเยอะเกินไป", tech: "Aerial Triangulation (การรังวัดสามเหลี่ยมทางอากาศ), Block Triangulation (การคำนวณโครงข่ายบล็อกภาพ)" },
+    { category: "Part 2", term: "Bundle Block Adjustment", back: "การปรับแก้บล็อกภาพถ่ายขั้นสูง **คำนวณจำลองลำแสง (Light Rays) ของทุกจุดภาพพร้อมกัน** เพื่อให้แม่นยำที่สุด", tech: "Light Rays (ลำแสงพุ่งเข้ากล้อง), Mathematical Optimization (การปรับแก้ทางคณิตศาสตร์ให้ดีที่สุด)" },
+    { category: "Part 2", term: "Least Square Adjustment", back: "วิธีคำนวณทางสถิติยอดนิยม **เพื่อหาค่าพิกัดที่ดีที่สุด** โดยทำให้ **ค่าความคลาดเคลื่อนสะสมเหลือน้อยที่สุด**", tech: "Least Squares Method (วิธีกำลังสองน้อยที่สุด), Error Minimization (การทำให้ค่าคลาดเคลื่อนน้อยที่สุด)" },
+    { category: "Part 2", term: "Collinearity Equation", back: "สมการลำแสงเส้นตรง กำหนดไว้ว่า **จุดบนดิน, จุดศูนย์กลางเลนส์ และจุดบนภาพ ต้องเรียงเป็นเส้นตรงเดียวกัน**", tech: "Collinearity Condition (เงื่อนไขร่วมเส้นตรง), Perspective Ray (เส้นรังสีแสงฉาย)" },
+    { category: "Part 2", term: "Relative Orientation", back: "การจัดภาพถ่ายคู่ซ้อนให้ **เอียงได้ระดับสอดคล้องกันจนเห็นเป็น 3 มิติ** แต่ **ยังไม่มีพิกัดจริงบนโลก**", tech: "Relative Orientation (การจัดปรับสัมพัทธ์), Model Coordinates (ระบบพิกัดของแบบจำลอง)" },
+    { category: "Part 2", term: "Absolute Orientation", back: "การดึงแบบจำลอง 3 มิติ ให้ **หมุน ขยาย และย้ายไปลงตำแหน่งระบบพิกัดจริงบนพื้นโลก**", tech: "Absolute Orientation (การจัดปรับสัมบูรณ์), Datum & Scale (หมุดอ้างอิงและมาตราส่วน)" },
+    { category: "Part 2", term: "Point Measurement", back: "ขั้นตอนการ **คลิกวัดตำแหน่งพิกัดของจุดต่างๆ บนภาพถ่าย** (เช่น จุด GCP หรือจุด Tie Point)", tech: "Image Coordinates (พิกัดบนภาพถ่าย), Digitizing Points (การรังวัดรังสีจุดพิกัด)" },
+    { category: "Part 2", term: "Check Points", back: "จุดวัดบนดินที่ **ไม่นำไปใช้คำนวณปรับแก้ภาพ** แต่เอาไว้ **ตรวจเช็กความถูกต้องสุ่มประเมินผล (Validation)**", tech: "Validation Points (จุดตรวจสอบความถูกต้อง), Accuracy Assessment (การประเมินความแม่นยำ)" },
+    { category: "Part 2", term: "ASPRS", back: "สมาคมถ่ายภาพทางอากาศและสำรวจข้อมูลระยะไกลแห่งสหรัฐอเมริกา **ผู้กำหนดมาตรฐานความแม่นยำแผนที่สากล**", tech: "ASPRS Standards (มาตรฐานสมาคม ASPRS สหรัฐฯ)" },
+    { category: "Part 2", term: "Spatial Resolution", back: "ความละเอียดพื้นที่ บอกถึง **ขนาดของ 1 พิกเซลภาพบนพื้นดิน (GSD)** ยิ่งพิกเซลเล็ก ภาพยิ่งคมชัด", tech: "GSD (ระยะขนาดพิกเซลบนพื้นดิน), Pixel Size (ขนาดเม็ดพิกเซล)" },
+    { category: "Part 2", term: "Radiometric Resolution", back: "ความละเอียดการรับแสง บอกถึง **ความสามารถในการแยกแยะความมืด-สว่าง (จำนวน Bit Depth เช่น 8-bit, 14-bit)**", tech: "Bit Depth (จำนวนบิตบันทึกความลึกแสง), Grayscale Levels (ระดับความเข้มสีเทา)" },
+    { category: "Part 2", term: "Spectral Resolution", back: "ความละเอียดช่วงคลื่น บอกถึง **จำนวนแถบช่วงคลื่นแสง (Bands)** ที่กล้องบันทึกได้ เช่น แดง, เขียว, น้ำเงิน, อินฟราเรด", tech: "Wavelength Bands (ช่วงความยาวคลื่นแสง), Multispectral (ระบบหลายช่วงคลื่น)" },
+    { category: "Part 2", term: "Temporal Resolution", back: "ความละเอียดเชิงเวลา คือ **ความถี่หรือจำนวนรอบ ในการกลับมาบินถ่ายภาพซ้ำ ณ พื้นที่เดิม**", tech: "Revisit Time (ระยะเวลาบินบันทึกซ้ำ), Time Series Analysis (การวิเคราะห์อนุกรมเวลา)" },
+    
+    // ตอนที่ 3
+    { category: "Part 3", term: "Photogrammetry (Definition)", back: "ศาสตร์การ **วัดขนาด ตำแหน่ง และรูปร่าง 3 มิติของวัตถุ** จากการวิเคราะห์ **รูปถ่าย**", tech: "3D Reconstruction (การสร้างแบบจำลอง 3 มิติขึ้นใหม่), Image Measurement (การรังวัดวัดขนาดจากภาพ)" },
+    { category: "Part 3", term: "Estimating Geometric Properties", back: "โจทย์หลักที่ 1: การคำนวณหา **ตำแหน่ง รูปร่าง ระยะทาง และโครงสร้างเรขาคณิต 3 มิติ** ของวัตถุ", tech: "Geometric Reconstruction (การสร้างเรขาคณิตวัตถุ), 3D Structure (โครงสร้างรูปทรง 3 มิติ)" },
+    { category: "Part 3", term: "Estimating Semantic Properties", back: "โจทย์หลักที่ 2: การจำแนก **ความหมายว่าสิ่งต่างๆ ในภาพคืออะไร** (ปัจจุบันนิยมใช้ **AI / Deep Learning** เข้ามาช่วย)", tech: "Semantic Segmentation (การแบ่งส่วนจัดกลุ่มความหมายภาพ), AI / Deep Learning (ปัญญาประดิษฐ์เรียนรู้เชิงลึก)" },
+    { category: "Part 3", term: "Photogrammetry Connection", back: "การประยุกต์ร่วมกับศาสตร์อื่น เช่น **การรังวัด (Geodesy), การรับรู้ระยะไกล (Remote Sensing) และ คอมพิวเตอร์วิทัศน์ (Computer Vision)**", tech: "Geodesy (วิทยาการรังวัดยึดโลก), Remote Sensing (การรับรู้ระยะไกล), Computer Vision (คอมพิวเตอร์วิทัศน์)" }
+  ];
+
+  let currentIndex = 0;
+
+  function updateCard() {
+    const cardElement = document.getElementById('flashcard');
+    const frontTerm = document.getElementById('frontTerm');
+    const backDefinition = document.getElementById('backDefinition');
+    const techTerm = document.getElementById('techTerm');
+    const cardCategory = document.getElementById('cardCategory');
+    const cardCounter = document.getElementById('cardCounter');
+    const progressBar = document.getElementById('progressBar');
+
+    if (!cardElement) return;
+
+    cardElement.classList.remove('is-flipped');
+    setTimeout(() => {
+      const data = cardsData[currentIndex];
+      frontTerm.textContent = data.term;
+      backDefinition.innerHTML = data.back.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      techTerm.textContent = data.tech;
+      cardCategory.textContent = data.category;
+      
+      cardCounter.textContent = `Card ${currentIndex + 1} / ${cardsData.length}`;
+      const progressPercent = ((currentIndex + 1) / cardsData.length) * 100;
+      progressBar.style.width = `${progressPercent}%`;
+    }, 150);
+  }
+
+  function flipCard() {
+    const cardElement = document.getElementById('flashcard');
+    if (cardElement) cardElement.classList.toggle('is-flipped');
+  }
+
+  function nextCard() {
+    currentIndex = (currentIndex < cardsData.length - 1) ? currentIndex + 1 : 0;
+    updateCard();
+  }
+
+  function prevCard() {
+    currentIndex = (currentIndex > 0) ? currentIndex - 1 : cardsData.length - 1;
+    updateCard();
+  }
+
+  let touchstartX = 0;
+  let touchendX = 0;
+
+  const sceneElement = document.querySelector('.scene');
+  if (sceneElement) {
+    sceneElement.addEventListener('touchstart', e => {
+      touchstartX = e.changedTouches[0].screenX;
+    }, {passive: true});
+
+    sceneElement.addEventListener('touchend', e => {
+      touchendX = e.changedTouches[0].screenX;
+      handleSwipe();
+    }, {passive: true});
+  }
+
+  function handleSwipe() {
+    const swipeThreshold = 50;
+    if (touchendX < touchstartX - swipeThreshold) nextCard();
+    if (touchendX > touchstartX + swipeThreshold) prevCard();
+  }
+
+  document.addEventListener('DOMContentLoaded', updateCard);
+  updateCard();
+</script>
